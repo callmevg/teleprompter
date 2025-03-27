@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teleprompter</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@400;700&family=Space+Mono:wght@400;700&family=Roboto+Mono:wght@400;700&family=IBM+Plex+Mono:wght@400;700&display=swap">
     <style>
         :root[data-theme="dark"] {
             --base-color: #141414;
@@ -140,6 +140,13 @@
         .teleprompter-container {
             display: none;
             border: 1px solid var(--border-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            background: var(--base-color);
         }
 
         .button-container {
@@ -147,6 +154,22 @@
             justify-content: center;
             gap: var(--spacing-unit);
             margin-top: var(--spacing-unit);
+        }
+
+        .teleprompter-container .button-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--gray-dark);
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .teleprompter-container .button-container:hover {
+            opacity: 1;
         }
 
         .control-button {
@@ -359,6 +382,93 @@
             max-width: 100%;
             word-wrap: break-word;
         }
+
+        .font-select {
+            width: 100%;
+            padding: 8px;
+            background: var(--gray-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .font-select option {
+            background: var(--gray-dark);
+            color: var(--text-color);
+            padding: 8px;
+        }
+
+        #preview {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #preview marquee {
+            width: 100%;
+            height: 100%;
+        }
+
+        .preview-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        .timer-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--gray-dark);
+            padding: 15px 20px;
+            border: 1px solid var(--border-color);
+            font-family: 'Space Mono', monospace;
+            font-size: 24px;
+            color: var(--text-color);
+            z-index: 2001;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .timer-display:hover {
+            opacity: 1;
+        }
+
+        .timer-input {
+            background: var(--gray-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-family: inherit;
+            padding: 5px;
+            width: 60px;
+            text-align: center;
+        }
+
+        .timer-group {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+        }
+
+        .timer-group input {
+            width: 100%;
+        }
+
+        .timer-label {
+            font-size: 10px;
+            text-align: center;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
     </style>
 </head>
 <body>
@@ -391,6 +501,47 @@
             <label for="bgColor">Background Color</label>
             <input type="color" id="bgColor" value="#FFFFFF">
         </div>
+        <div class="control-group">
+            <label for="fontFamily">Font</label>
+            <select id="fontFamily" class="font-select">
+                <option value="Inter" style="font-family: 'Inter'">Inter</option>
+                <option value="Poppins" style="font-family: 'Poppins'">Poppins</option>
+                <option value="Space Mono" style="font-family: 'Space Mono'" selected>Space Mono</option>
+                <option value="Roboto Mono" style="font-family: 'Roboto Mono'">Roboto Mono</option>
+                <option value="IBM Plex Mono" style="font-family: 'IBM Plex Mono'">IBM Plex Mono</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label for="wordsPerLine">Words Per Line</label>
+            <input type="range" id="wordsPerLine" min="4" max="12" value="8">
+            <span id="wordsPerLineValue" class="value-display">8</span>
+        </div>
+        <div class="control-group">
+            <label>Timer Type</label>
+            <select id="timerType" class="font-select">
+                <option value="none">No Timer</option>
+                <option value="clock">Clock</option>
+                <option value="countdown">Countdown Timer</option>
+                <option value="stopwatch">Stopwatch</option>
+            </select>
+        </div>
+        <div class="control-group" id="countdownSettings" style="display: none;">
+            <label>Countdown Duration</label>
+            <div class="timer-group">
+                <div>
+                    <input type="number" id="hours" class="timer-input" min="0" max="99" value="0">
+                    <div class="timer-label">Hours</div>
+                </div>
+                <div>
+                    <input type="number" id="minutes" class="timer-input" min="0" max="59" value="5">
+                    <div class="timer-label">Minutes</div>
+                </div>
+                <div>
+                    <input type="number" id="seconds" class="timer-input" min="0" max="59" value="0">
+                    <div class="timer-label">Seconds</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="main-content" id="mainContent">
@@ -410,9 +561,14 @@
         </div>
     </div>
 
+    <div class="timer-display" id="timerDisplay" style="display: none;">00:00:00</div>
+
     <script>
         let marqueeElement = null;
         let isPaused = false;
+        let timerInterval = null;
+        let startTime = null;
+        let countdownDuration = null;
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -448,18 +604,59 @@
             }
         });
 
+        document.getElementById('fontFamily').addEventListener('change', function(e) {
+            if (marqueeElement) {
+                marqueeElement.querySelector('h1').style.fontFamily = e.target.value;
+            }
+        });
+
+        document.getElementById('wordsPerLine').addEventListener('input', function(e) {
+            document.getElementById('wordsPerLineValue').textContent = e.target.value;
+            updatePreview();
+        });
+
+        document.getElementById('timerType').addEventListener('change', function(e) {
+            const countdownSettings = document.getElementById('countdownSettings');
+            countdownSettings.style.display = e.target.value === 'countdown' ? 'block' : 'none';
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            const timerDisplay = document.getElementById('timerDisplay');
+            timerDisplay.style.display = e.target.value === 'none' ? 'none' : 'block';
+            
+            if (e.target.value !== 'none') {
+                startTimer(e.target.value);
+            }
+        });
+
+        function formatText(text, wordsPerLine) {
+            const words = text.split(/\s+/);
+            const lines = [];
+            for (let i = 0; i < words.length; i += wordsPerLine) {
+                lines.push(words.slice(i, i + wordsPerLine).join(' '));
+            }
+            return lines.join('\n');
+        }
+
         function updatePreview() {
             const preview = document.getElementById('preview');
             const fontSize = document.getElementById('fontSize').value;
             const textColor = document.getElementById('textColor').value;
             const bgColor = document.getElementById('bgColor').value;
+            const fontFamily = document.getElementById('fontFamily').value;
             const content = document.getElementById('textContent').value;
+            const wordsPerLine = parseInt(document.getElementById('wordsPerLine').value);
+
+            const formattedContent = formatText(content, wordsPerLine);
 
             preview.innerHTML = `
-                <div style="width:100%; height:100%; background-color:${bgColor};">
+                <div style="width:100%; height:100%; background-color:${bgColor};" class="preview-content">
                     <marquee scrollamount="${document.getElementById('speed').value}" direction="up" height="100%" loop="1">
-                        <h1 style="font-size:${fontSize}px; color:${textColor}; font-family:inherit; text-align:center; line-height:150%; white-space:pre-line; padding: 20px;">
-                            ${content || 'Enter your text in the textarea above...'}
+                        <h1 style="font-size:${fontSize}px; color:${textColor}; font-family:'${fontFamily}'; text-align:center; line-height:150%; white-space:pre-line; margin: 0; padding: 0;">
+                            ${formattedContent || 'Enter your text in the textarea above...'}
                         </h1>
                     </marquee>
                 </div>
@@ -467,9 +664,66 @@
             marqueeElement = preview.querySelector('marquee');
         }
 
+        function startTimer(type) {
+            const timerDisplay = document.getElementById('timerDisplay');
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+
+            switch(type) {
+                case 'clock':
+                    timerInterval = setInterval(() => {
+                        const now = new Date();
+                        timerDisplay.textContent = now.toLocaleTimeString();
+                    }, 1000);
+                    break;
+
+                case 'countdown':
+                    const hours = parseInt(document.getElementById('hours').value) || 0;
+                    const minutes = parseInt(document.getElementById('minutes').value) || 0;
+                    const seconds = parseInt(document.getElementById('seconds').value) || 0;
+                    countdownDuration = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                    startTime = Date.now();
+
+                    timerInterval = setInterval(() => {
+                        const elapsed = Date.now() - startTime;
+                        const remaining = countdownDuration - elapsed;
+
+                        if (remaining <= 0) {
+                            clearInterval(timerInterval);
+                            timerDisplay.textContent = '00:00:00';
+                            return;
+                        }
+
+                        const h = Math.floor(remaining / 3600000);
+                        const m = Math.floor((remaining % 3600000) / 60000);
+                        const s = Math.floor((remaining % 60000) / 1000);
+                        timerDisplay.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                    }, 1000);
+                    break;
+
+                case 'stopwatch':
+                    startTime = Date.now();
+                    timerInterval = setInterval(() => {
+                        const elapsed = Date.now() - startTime;
+                        const h = Math.floor(elapsed / 3600000);
+                        const m = Math.floor((elapsed % 3600000) / 60000);
+                        const s = Math.floor((elapsed % 60000) / 1000);
+                        timerDisplay.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                    }, 1000);
+                    break;
+            }
+        }
+
         function startTeleprompter() {
             document.getElementById('editorContainer').style.display = 'none';
             document.getElementById('teleprompterContainer').style.display = 'flex';
+            const timerType = document.getElementById('timerType').value;
+            if (timerType !== 'none') {
+                document.getElementById('timerDisplay').style.display = 'block';
+                startTimer(timerType);
+            }
             updatePreview();
             if (marqueeElement) {
                 marqueeElement.start();
@@ -492,6 +746,11 @@
         function stopTeleprompter() {
             document.getElementById('editorContainer').style.display = 'flex';
             document.getElementById('teleprompterContainer').style.display = 'none';
+            document.getElementById('timerDisplay').style.display = 'none';
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
             isPaused = false;
         }
 
