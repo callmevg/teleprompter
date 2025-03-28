@@ -247,8 +247,17 @@
             width: 100%;
             height: 30px;
             padding: 0;
-            border: 2px solid var(--border-color);
-            background: var(--base-color);
+            border: 1px solid var(--border-color);
+            background: var(--surface-color);
+            cursor: pointer;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+            border: none;
         }
 
         .value-display {
@@ -536,6 +545,31 @@
             color: var(--accent-color);
             border-color: var(--accent-color);
         }
+
+        .color-swatches {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        .color-swatch {
+            width: 100%;
+            /* aspect-ratio: 1; */
+            min-height: 40px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        .color-swatch.active {
+            border: 2px solid var(--accent-color);
+        }
     </style>
 </head>
 <body>
@@ -563,10 +597,16 @@
         <div class="control-group">
             <label for="textColor">Text Color</label>
             <input type="color" id="textColor" value="#000000">
+            <div class="color-swatches" id="textSwatches">
+                <!-- Text color swatches will be added here -->
+            </div>
         </div>
         <div class="control-group">
             <label for="bgColor">Background Color</label>
             <input type="color" id="bgColor" value="#FFFFFF">
+            <div class="color-swatches" id="bgSwatches">
+                <!-- Background color swatches will be added here -->
+            </div>
         </div>
         <div class="control-group">
             <label for="fontFamily">Font</label>
@@ -663,12 +703,20 @@
         });
 
         document.getElementById('textColor').addEventListener('input', function(e) {
+            const swatches = document.querySelectorAll('#textSwatches .color-swatch');
+            swatches.forEach(swatch => {
+                swatch.classList.toggle('active', swatch.style.backgroundColor === e.target.value);
+            });
             if (marqueeElement) {
                 marqueeElement.querySelector('h1').style.color = e.target.value;
             }
         });
 
         document.getElementById('bgColor').addEventListener('input', function(e) {
+            const swatches = document.querySelectorAll('#bgSwatches .color-swatch');
+            swatches.forEach(swatch => {
+                swatch.classList.toggle('active', swatch.style.backgroundColor === e.target.value);
+            });
             if (marqueeElement) {
                 marqueeElement.parentElement.style.backgroundColor = e.target.value;
             }
@@ -829,6 +877,49 @@
             const isDark = html.getAttribute('data-theme') === 'dark';
             html.setAttribute('data-theme', isDark ? 'light' : 'dark');
         }
+
+        // Color swatch presets
+        const textColorPresets = [
+            '#FFFFFF', // White
+            '#E2E2E2', // Light gray
+            '#FFE066', // Soft yellow
+            '#90EE90', // Light green
+            '#87CEEB', // Sky blue
+        ];
+
+        const bgColorPresets = [
+            '#000000', // Black
+            '#1A1A1A', // Dark gray
+            '#123456', // Navy blue
+            '#2D572C', // Dark green
+            '#461220', // Dark red
+        ];
+
+        // Function to create color swatches
+        function createColorSwatches(colors, containerId, inputId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            colors.forEach(color => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch';
+                swatch.style.backgroundColor = color;
+                swatch.addEventListener('click', () => {
+                    document.getElementById(inputId).value = color;
+                    // Trigger the input event to update the preview
+                    document.getElementById(inputId).dispatchEvent(new Event('input'));
+                    
+                    // Update active state
+                    container.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                    swatch.classList.add('active');
+                });
+                container.appendChild(swatch);
+            });
+        }
+
+        // Initialize color swatches
+        createColorSwatches(textColorPresets, 'textSwatches', 'textColor');
+        createColorSwatches(bgColorPresets, 'bgSwatches', 'bgColor');
 
         // Initial theme setup
         document.getElementById('themeSwitch').checked = document.documentElement.getAttribute('data-theme') === 'dark';
