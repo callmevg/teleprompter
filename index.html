@@ -160,6 +160,8 @@
             background: var(--bg-color);
             z-index: 2000;
             display: none;
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
         }
 
         .button-container {
@@ -167,6 +169,8 @@
             justify-content: center;
             gap: var(--spacing-unit);
             margin-top: var(--spacing-unit);
+            /* border: none; */
+            background: none
         }
 
         .teleprompter-container .button-container {
@@ -177,16 +181,14 @@
             display: flex;
             gap: calc(var(--spacing-unit) * 0.5);
             padding: calc(var(--spacing-unit) * 0.75);
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
-            opacity: 0.3;
+            /* opacity: 0.3; */
             transition: opacity 0.3s ease;
             z-index: 2002; /* Ensure buttons are always on top */
         }
 
-        .teleprompter-container .button-container:hover {
+        /* .teleprompter-container .button-container:hover {
             opacity: 1;
-        }
+        } */
 
         .control-button {
             background: var(--surface-color);
