@@ -24,6 +24,12 @@ A modern, feature-rich web teleprompter application with customizable appearance
 - **Stopwatch**: Track elapsed time from the start of your presentation
 - **Timer Positioning**: Timer displays in the top-right corner for easy reference
 
+### File Import
+- **Drag & Drop**: Easily import content by dragging files directly into the editor
+- **Multiple Formats**: Support for TXT, MD, PDF, DOC, and DOCX files
+- **Automatic Conversion**: Content is extracted and formatted for teleprompter use
+- **Instant Preview**: Imported content is immediately available for editing before presentation
+
 ### Interface
 - **Dark/Light Mode**: Toggle between themes for different lighting conditions
 - **Collapsible Sidebar**: Hide controls for distraction-free reading
@@ -38,7 +44,7 @@ A modern, feature-rich web teleprompter application with customizable appearance
 ## Getting Started
 
 1. Open index.html in any modern web browser
-2. Type or paste your script into the text area
+2. Type or paste your script into the text area, or drag and drop a supported file
 3. Adjust appearance settings in the sidebar
 4. Click 'Start' to begin the teleprompter
 5. Use the space bar to pause/resume as needed
@@ -46,7 +52,7 @@ A modern, feature-rich web teleprompter application with customizable appearance
 
 ## Technical Details
 
-This teleprompter is built using vanilla HTML, CSS, and JavaScript with no external dependencies or server requirements. The application works entirely in the browser and doesn't require an internet connection after the initial load.
+This teleprompter is built using vanilla HTML, CSS, and JavaScript with minimal external dependencies. The application works entirely in the browser and doesn't require an internet connection after the initial load.
 
 ## Browser Compatibility
 

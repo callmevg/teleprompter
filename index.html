@@ -572,6 +572,42 @@
         .color-swatch.active {
             border: 2px solid var(--accent-color);
         }
+
+        .file-drop-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border-color);
+            padding: var(--spacing-unit);
+            margin-bottom: var(--spacing-unit);
+            background: var(--surface-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        .file-drop-area .file-message {
+            font-size: 14px;
+            margin-bottom: var(--spacing-unit);
+        }
+
+        .file-drop-area .file-input {
+            display: none;
+        }
+
+        .file-drop-area .file-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--accent-color);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .file-drop-area .supported-formats {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: var(--spacing-unit);
+        }
     </style>
 </head>
 <body>
@@ -658,6 +694,12 @@
 
     <div class="main-content" id="mainContent">
         <div class="editor-container" id="editorContainer">
+            <div class="file-drop-area">
+                <span class="file-message">Drag & drop a file here or</span>
+                <input type="file" id="fileInput" accept=".txt,.md,.pdf,.doc,.docx" class="file-input">
+                <label for="fileInput" class="file-label">Choose a file</label>
+                <span class="supported-formats">Supported formats: TXT, MD, PDF, DOC, DOCX</span>
+            </div>
             <textarea id="textContent" placeholder="Enter your teleprompter text here..."></textarea>
             <div class="button-container">
                 <button class="control-button accent" onclick="startTeleprompter()">Start</button>
@@ -675,12 +717,134 @@
 
     <div class="timer-display" id="timerDisplay" style="display: none;">00:00:00</div>
 
+    <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
+    <script src="https://unpkg.com/marked@9.1.6/marked.min.js"></script>
+    
     <script>
         let marqueeElement = null;
         let isPaused = false;
         let timerInterval = null;
         let startTime = null;
         let countdownDuration = null;
+
+        // File drop handling
+        const fileDropArea = document.querySelector('.file-drop-area');
+        const fileInput = document.getElementById('fileInput');
+        const textContent = document.getElementById('textContent');
+
+        // Initialize PDF.js worker
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+        // Handle drag events
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileDropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            fileDropArea.style.borderColor = 'var(--accent-color)';
+            fileDropArea.style.backgroundColor = 'var(--hover-color)';
+        }
+
+        function unhighlight() {
+            fileDropArea.style.borderColor = 'var(--border-color)';
+            fileDropArea.style.backgroundColor = 'var(--surface-color)';
+        }
+
+        fileDropArea.addEventListener('drop', handleDrop, false);
+        fileInput.addEventListener('change', handleFiles, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles({ target: { files } });
+        }
+
+        function handleFiles(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const fileType = file.name.split('.').pop().toLowerCase();
+            const reader = new FileReader();
+
+            // Show loading state
+            textContent.value = 'Loading file...';
+
+            switch (fileType) {
+                case 'txt':
+                    reader.onload = function(e) {
+                        textContent.value = e.target.result;
+                    };
+                    reader.readAsText(file);
+                    break;
+
+                case 'md':
+                    reader.onload = function(e) {
+                        // Convert markdown to plain text by stripping HTML tags after markdown conversion
+                        const html = marked.parse(e.target.result);
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        textContent.value = tempDiv.textContent || tempDiv.innerText || '';
+                    };
+                    reader.readAsText(file);
+                    break;
+
+                case 'pdf':
+                    reader.onload = async function(e) {
+                        try {
+                            const typedArray = new Uint8Array(e.target.result);
+                            const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+                            let text = '';
+                            
+                            // Extract text from all pages
+                            for (let i = 1; i <= pdf.numPages; i++) {
+                                const page = await pdf.getPage(i);
+                                const content = await page.getTextContent();
+                                const strings = content.items.map(item => item.str);
+                                text += strings.join(' ') + '\n\n';
+                            }
+                            
+                            textContent.value = text;
+                        } catch (error) {
+                            console.error('Error parsing PDF:', error);
+                            textContent.value = 'Error loading PDF. Please try another file.';
+                        }
+                    };
+                    reader.readAsArrayBuffer(file);
+                    break;
+
+                case 'doc':
+                case 'docx':
+                    reader.onload = function(e) {
+                        mammoth.extractRawText({ arrayBuffer: e.target.result })
+                            .then(result => {
+                                textContent.value = result.value;
+                            })
+                            .catch(error => {
+                                console.error('Error parsing Word document:', error);
+                                textContent.value = 'Error loading Word document. Please try another file.';
+                            });
+                    };
+                    reader.readAsArrayBuffer(file);
+                    break;
+
+                default:
+                    textContent.value = 'Unsupported file format. Please use TXT, MD, PDF, DOC, or DOCX files.';
+            }
+        }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
