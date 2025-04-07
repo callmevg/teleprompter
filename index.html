@@ -652,8 +652,7 @@
             </div>
         </div>
         <div class="footer">
-            Made with ❤️ by Sangha and AI
-            <!-- Made with ❤️ by <a href="https://linkedin.com/in/vaigu" target="_blank">Vaibhav</a> and AI -->
+            Made with ❤️ by <a href="https://linkedin.com/in/vaigu" target="_blank">Vaibhav</a> and AI
         </div>
     </div>
 
@@ -857,9 +856,11 @@
                 if (isPaused) {
                     marqueeElement.start();
                     isPaused = false;
+                    document.querySelector('.teleprompter-container .button-container button:first-child').textContent = 'Pause';
                 } else {
                     marqueeElement.stop();
                     isPaused = true;
+                    document.querySelector('.teleprompter-container .button-container button:first-child').textContent = 'Play';
                 }
             }
         }
@@ -874,6 +875,25 @@
             }
             isPaused = false;
         }
+
+        // Add keyboard event listeners
+        document.addEventListener('keydown', function(event) {
+            // Only respond to keyboard shortcuts when in teleprompter mode
+            const teleprompterVisible = document.getElementById('teleprompterContainer').style.display === 'flex';
+            
+            if (teleprompterVisible) {
+                // Space bar to toggle pause/play
+                if (event.code === 'Space') {
+                    event.preventDefault(); // Prevent page scrolling
+                    pauseTeleprompter();
+                }
+                
+                // Escape key to exit teleprompter mode
+                if (event.code === 'Escape') {
+                    stopTeleprompter();
+                }
+            }
+        });
 
         function toggleTheme() {
             const html = document.documentElement;
