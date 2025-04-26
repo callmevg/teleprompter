@@ -3,7 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teleprompter</title>
+    <title>Free Online Teleprompter - Easy to Use Scrolling Text for Presentations</title>
+    <meta name="description" content="An easy-to-use free online teleprompter with customizable speed, text size, color, and word count. Perfect for speeches, presentations, videos, and podcasts.">
+    <meta name="keywords" content="teleprompter, online teleprompter, free teleprompter, speech tool, presentation tool, scrolling text, speech prompter">
+    <meta name="author" content="Vaibhav Gupta">
+    <meta property="og:title" content="Free Online Teleprompter">
+    <meta property="og:description" content="An easy-to-use free online teleprompter with customizable speed, text size, color, and word count.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vaibhavgupta.co.in/teleprompter">
+    <meta property="og:image" content="assets/logo_16.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Free Online Teleprompter">
+    <meta name="twitter:description" content="An easy-to-use free online teleprompter with customizable speed, text size, color, and word count.">
+    <meta name="twitter:image" content="assets/logo_16.png">
+    <link rel="canonical" href="https://vaibhavgupta.co.in/teleprompter">
     <link rel="icon" type="image/png" sizes="16x16" href="assets/logo_16.png">
     <link rel="apple-touch-icon" sizes="16x16" href="assets/logo_16.png">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@600;800&display=swap">
@@ -264,10 +277,9 @@
 
         .control-button.accent:hover {
             background: #ff9433;
-        }
-
-        input[type="range"] {
+        }        input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
             height: 2px;
             background: var(--border-color);
@@ -277,16 +289,16 @@
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
+            appearance: none;
             width: 16px;
             height: 16px;
             background: var(--accent-color);
             cursor: pointer;
             border: none;
             border-radius: 0;
-        }
-
-        input[type="color"] {
+        }        input[type="color"] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
             height: 30px;
             padding: 0;
@@ -453,9 +465,7 @@
         * {
             max-width: 100%;
             word-wrap: break-word;
-        }
-
-        .font-select {
+        }        .font-select {
             width: 100%;
             padding: 8px;
             background: var(--surface-color);
@@ -465,6 +475,7 @@
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
+            -webkit-appearance: none;
             appearance: none;
             border-radius: 0;
             transition: border-color 0.2s ease;
@@ -528,9 +539,7 @@
             gap: 12px;
             width: 100%;
             margin-top: 8px;
-        }
-
-        .timer-input {
+        }        .timer-input {
             background: var(--surface-color);
             border: 1px solid var(--border-color);
             color: var(--text-color);
@@ -540,6 +549,7 @@
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
+            -webkit-appearance: none;
             appearance: none;
             border-radius: 0;
             transition: border-color 0.2s ease;
@@ -799,6 +809,31 @@
     <script src="https://unpkg.com/mammoth@1.6.0/mammoth.browser.min.js"></script>
     <script src="https://unpkg.com/marked@9.1.6/marked.min.js"></script>
     
+    <!-- Structured data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Free Online Teleprompter",
+      "url": "https://vaibhavgupta.co.in/teleprompter",
+      "description": "An easy-to-use free online teleprompter with customizable speed, text size, color, and word count. Perfect for speeches, presentations, videos, and podcasts.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Vaibhav Gupta",
+        "url": "https://vaibhavgupta.co.in"
+      },
+      "browserRequirements": "Requires JavaScript. Compatible with modern browsers.",
+      "availableOnDevice": ["Web Browser", "Mobile Phone", "Tablet"]
+    }
+    </script>
+    
     <script>
         let marqueeElement = null;
         let isPaused = false;
@@ -888,6 +923,7 @@
                             const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
                             let text = '';
                             
+
                             // Extract text from all pages
                             for (let i = 1; i <= pdf.numPages; i++) {
                                 const page = await pdf.getPage(i);
@@ -896,6 +932,7 @@
                                 text += strings.join(' ') + '\n\n';
                             }
                             
+
                             textContent.value = text;
                         } catch (error) {
                             console.error('Error parsing PDF:', error);
